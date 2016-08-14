@@ -56,3 +56,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+* Other
+*~
+*.png
+*.jpg
+*.jpeg
+*.gif
