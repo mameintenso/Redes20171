@@ -1,7 +1,6 @@
 # Redes 2017-1
 
-Repositorio creado para almacenar las prácticas del curso de Redes de Computadoras
-de la Facultad de Ciencias de la UNAM, durante el semestre 2017-1.
+## Práctica 1
 
 **Autores:**
 
