@@ -11,7 +11,7 @@ class SimpleCalculator():
        self.curr_screen = 0
        self.prev_screen = 0
 
-       # can be either '+' or '-'
+       # can be either '+' or '-' or '='
        self.operator = None
 
        # the following boolean variable decides whether the last
@@ -40,6 +40,7 @@ class SimpleCalculator():
                 self.curr_screen = int(self.prev_screen) - int(self.curr_screen)
 
 
+
     def enter_digit(self, digit):
         """
         :param digit in the range [0, 9]:
@@ -47,7 +48,10 @@ class SimpleCalculator():
         if self.input_type:
             self.curr_screen = (self.curr_screen * 10) + int(digit)
         else:
-            self.prev_screen = self.curr_screen
+            if self.operator == '=':
+                self.prev_screen = 0
+            else:
+                self.prev_screen = self.curr_screen
             self.curr_screen = int(digit)
         self.input_type = True
 
@@ -62,12 +66,11 @@ class SimpleCalculator():
             else:
                 # the following functionality is based on what the
                 # Mac OS X calculator actually does
-                self.prev_screen = self.curr_screen
                 self.digest()
         else:
             if self.operator is None:
                 self.prev_screen = self.curr_screen
             else:
                 self.digest()
-            self.operator = op
+        self.operator = op
         self.input_type = False
