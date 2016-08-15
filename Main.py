@@ -12,6 +12,7 @@ def main():
     #       }
     # encrypt_file(db)
     print(decrypt_file())
+    print(encrypt_word('\n'))
 
 if __name__ == '__main__':
     main()

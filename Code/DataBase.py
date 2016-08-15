@@ -5,7 +5,7 @@ from Constants.Constants import *
 
 def encrypt_word(word):
     """
-    Encrypts word by adding 3 units to each charachter's
+    Encrypts word by adding ASCII_OFFSET units to each charachter's
     ascii value. Allowed characters are specified in Readme.md
     An error is raised if the word contains any character outside
     the range [ASCII_INIT, ASCII_END] (see Constants/Constants.py)
@@ -19,18 +19,18 @@ def encrypt_word(word):
         ascii_val = ord(letter)
         if ascii_val < ASCII_INIT or ascii_val > ASCII_END:
             # the current letter is invalid!
-            raise IndexError('The current ascii value is out of the range'\
-                             + '[' + str(ASCII_INIT)\
+            raise IndexError('The current ascii value is out of the range '\
+                             + '[' + str(ASCII_INIT) + ', '\
                              + str(ASCII_END) + ']')
         else:
             ascii_val -= ASCII_INIT
-            new_val = ((ascii_val + 3) % ASCII_LEN) + ASCII_INIT
+            new_val = ((ascii_val + ASCII_OFFSET) % ASCII_LEN) + ASCII_INIT
             encrypted += chr(new_val)
     return encrypted
 
 def decrypt_word(word):
     """
-    Decrypts word by subtracting 3 units to each charachter's
+    Decrypts word by subtracting ASCII_OFFSET units to each charachter's
     ascii value. Allowed characters are specified in Readme.md
     An error is raised if the word contains any character outside
     the range [ASCII_INIT, ASCII_END] (see Constants/Constants.py)
@@ -44,12 +44,12 @@ def decrypt_word(word):
         ascii_val = ord(letter)
         if ascii_val < ASCII_INIT or ascii_val > ASCII_END:
             # the current letter is invalid!
-            raise IndexError('The current ascii value is out of the range'\
-                             + '[' + str(ASCII_INIT)\
+            raise IndexError('The current ascii value is out of the range '\
+                             + '[' + str(ASCII_INIT) + ', '\
                              + str(ASCII_END) + ']')
         else:
             ascii_val -= ASCII_INIT
-            new_val = ((ascii_val - 3) % ASCII_LEN) + ASCII_INIT
+            new_val = ((ascii_val - ASCII_OFFSET) % ASCII_LEN) + ASCII_INIT
             decrypted += chr(new_val)
     return decrypted
 
