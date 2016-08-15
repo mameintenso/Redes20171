@@ -4,10 +4,16 @@
 from Code.DataBase import *
 from Code.Calculator import *
 
+"""
+Main script for Practica1
+:author AlOrozco53, TuringOraculosLocos:
+"""
+
+
 def main():
     # provisional code to test the functionality of the program
     # DELETE THIS SHIT
-    calc = SimpleCalculator()
+    calc = AdvancedCalculator()
     inp = ''
     while True:
         print('curr screen:', calc.curr_screen,
@@ -15,7 +21,7 @@ def main():
               'operator:', calc.operator,
               '\n', '-------------------------')
         inp = input()
-        if inp in ['+', '-', '=']:
+        if inp in ['/', '*', '+', '-', '=']:
             calc.enter_op(inp)
         else:
             calc.enter_digit(inp)
