@@ -89,6 +89,10 @@ class AdvancedCalculator(SimpleCalculator):
 
     def __init__(self):
         super().__init__()
+        self.decimal = False
+        self.zero = False
+        self.curr_screen = 0.0
+        self.prev_screen = 0.0
 
     def digest(self):
         """
@@ -107,17 +111,43 @@ class AdvancedCalculator(SimpleCalculator):
                 self.curr_screen = float(self.prev_screen) / float(self.curr_screen)
             elif self.operator == '*':
                 self.curr_screen = float(self.prev_screen) * float(self.curr_screen)
+        self.decimal = False
 
     def enter_digit(self, digit):
         """
-        :param digit in the range [0, 9]:
+        :param digit in the range [0, 9] or decimal dot '.':
         """
         if self.input_type:
-            self.curr_screen = (float(self.curr_screen) * 10.0) + float(digit)
+            if digit == '.':
+                if self.curr_screen != 0.0:
+                    self.curr_screen = float(self.curr_screen)
+                self.decimal = True
+            elif self.decimal:
+                try:
+                    if digit == 0:
+                        self.curr_screen += float(str(self.curr_screen) + '0')
+                        self.zero = True
+                    elif self.curr_screen / float(int(self.curr_screen)) == 1.0:
+                        if self.zero:
+                            self.curr_screen = float(str(self.curr_screen) + '0')  + float(digit) / 10.0
+                            self.zero = False
+                        else:
+                            self.curr_screen += float(digit) / 10.0
+                    else:
+                        if self.zero:
+                            self.curr_screen = float(str(self.curr_screen) + '0' + digit)
+                            self.zero = False
+                        else:
+                            self.curr_screen = float(str(self.curr_screen) + digit)
+                except ZeroDivisionError:
+                    self.curr_screen = float(str(self.curr_screen) + digit)
+            else:
+                self.curr_screen = (float(self.curr_screen) * 10.0) + float(digit)
         else:
             if self.operator == '=':
                 self.prev_screen = 0
+                self.decimal = False
             else:
                 self.prev_screen = self.curr_screen
-            self.curr_screen = int(digit)
+            self.curr_screen = 0.0 + float(digit)
         self.input_type = True

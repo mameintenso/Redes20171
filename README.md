@@ -34,3 +34,7 @@ para no usar números mágicos.
 
 En Code/Calculator.py están definidas las dos calculadoras. La más simple
 sólo realiza sumas y restas y la avanzada puede dividir y multiplicar.
+
+Las calculadoras SÓLO se pueden usar haciendo clic en los botones.
+
+La práctica se realizó en Python 3.5

@@ -31,3 +31,9 @@ ADMIN_USERNAME= 'root'
 
 # default password for the admin user
 ADMIN_PASSWORD = 'root'
+
+# variables that store features for all the GUIs
+LOGIN_WIDTH = 500
+LOGIN_HEIGTH = 400
+DEFAULT_POSTION_X = 350
+DEFAULT_POSTION_Y = 350

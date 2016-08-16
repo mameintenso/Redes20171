@@ -67,16 +67,32 @@ def decrypt_file():
     Decrypts the file that stores all the usernames and passwords.
     See Readme.md for more information on the format of the database file.
     :returns a dictionary with decrypted usernames as keys and decrypted
+    If the file doesn't exist, it is created.
     passwords as values:
     """
+
+    # if the database file does not exists, a new one is created
+    # storing the admin's credentials
+    if not os.path.isfile(DATABASE_PATH):
+        with open(DATABASE_PATH, 'w+') as dbfile:
+            dbfile.write(encrypt_word(ADMIN_USERNAME)\
+                         + ' '\
+                         + encrypt_word(ADMIN_PASSWORD))
+
     # variable to store the decrypted file
     database = {}
 
     with open(DATABASE_PATH, 'r') as dbfile:
         for line in dbfile:
             pair = line.strip().split(' ')
-            key = decrypt_word(pair[0])
-            value = decrypt_word(pair[1])
+            try:
+                key = decrypt_word(pair[0])
+                value = decrypt_word(pair[1])
+            except:
+                dbfile.close()
+                raise IndexError('The current ascii value is out of the range '\
+                                 + '[' + str(ASCII_INIT) + ', '\
+                                 + str(ASCII_END) + ']')
             database[key] = value
     return database
 
@@ -88,15 +104,23 @@ def encrypt_file(database):
     If the file doesn't exist, it is created.
     :param database to encrypt:
     """
-    # if the database file does not exists, a new one is creating
+    # if the database file does not exists, a new one is created
     # storing the admin's credentials
     if not os.path.isfile(DATABASE_PATH):
         with open(DATABASE_PATH, 'w+') as dbfile:
-            dbfile.write(ADMIN_USERNAME + ' ' + ADMIN_PASSWORD)
+            dbfile.write(encrpyt_word(ADMIN_USERNAME)\
+                         + ' '\
+                         + encrypt_word(ADMIN_PASSWORD))
 
     # store all credentials in database
     with open(DATABASE_PATH, 'w+') as dbfile:
         string = ''
         for key, value in database.items():
-            string += encrypt_word(key) + ' ' + encrypt_word(value) + '\n'
+            try:
+                string += encrypt_word(key) + ' ' + encrypt_word(value) + '\n'
+            except:
+                dbfile.close()
+                raise IndexError('The current ascii value is out of the range '\
+                                 + '[' + str(ASCII_INIT) + ', '\
+                                 + str(ASCII_END) + ']')
         dbfile.write(string.strip())
