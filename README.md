@@ -15,6 +15,7 @@ El usuario debe darse de alta con un nombre de usuario y una contraseña que
 se guardan en el archivo Code/Input.txt de manera cifrada. Dicho archivo
 guarda un usuario por línea separando el nombre de usuario cifrado de la contraseña
 cifrada por un espacio; por ejemplo:
+
 usr1 psswd1
 usr2 psswd2
 .
