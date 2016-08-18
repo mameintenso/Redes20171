@@ -7,7 +7,7 @@
 * [Albert Manuel Orozco Camacho](http://github.com/AlOrozco53)
   * __41308026-0__
 * [Erick Iván Pérez Jiménez](http://github.com/TuringOraculosLocos)
-  * __núm-cta-ñérick__
+  * __31104212_2__
 
 En esta rama se implementó un servicio de dos calculadoras simples.
 
