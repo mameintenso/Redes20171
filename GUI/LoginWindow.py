@@ -13,21 +13,17 @@ class Main(QtGui.QMainWindow):
 		self.label1.resize(380,45)
 		self.label1.move(20,45)
 
-		self.line = QtGui.QLineEdit(self)
-		self.line.move(20,90)
-		self.line.setReadOnly(True)
-		self.line.setAlignment(Qt.AlignLeft)
-		self.line.resize(380,45)
+		line = QtGui.QLineEdit(self)
+		line.move(20,90)
+		line.resize(380,45)
 
 		self.label2 = QtGui.QLabel('¿Cuál es el puerto del contacto?:', self)
 		self.label2.resize(380,45)
 		self.label2.move(20,180)
 		
-		self.line = QtGui.QLineEdit(self)
-		self.line.move(20,220)
-		self.line.setReadOnly(True)
-		self.line.setAlignment(Qt.AlignLeft)
-		self.line.resize(380,45)
+		line2 = QtGui.QLineEdit(self)
+		line2.move(20,220)
+		line2.resize(380,45)
 
 		acceder = QtGui.QPushButton("Acceder",self)
 		acceder.move(300,280)
