@@ -1,4 +1,4 @@
-#WindowGUI
+#GUICHAT
 import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -11,16 +11,25 @@ class Main(QtGui.QMainWindow):
 	def initUI(self):
 
 		self.textbox = QtGui.QLabel(self)
-		box = QtGui.QLineEdit(self)
-		box.move(20,570)
-		box.resize(630,80)
-
-		responder = QtGui.QPushButton("Responder",self)
-		responder.move(670,570)
-		responder.resize(140,80)
-        
+		self.textbox.move(15,15)
+		self.textbox.resize(730,600)
 		
+		#Línea donde se escribe
+		self.box = QtGui.QLineEdit(self)
+		self.box.move(20,570)
+		self.box.resize(630,80)
+		self.box.setTextMargins(15,10,40,20)
 
+		#Botón para responder
+		self.responder = QtGui.QPushButton("Responder",self)
+		self.responder.move(670,570)
+		self.responder.resize(140,80)
+
+		#Historial de mensajes.
+		self.historial = QtGui.QTextBrowser(self)
+		self.historial.setAcceptRichText(True)
+		self.historial.resize(790,530)
+		self.historial.move(20,20)
 
 
 
