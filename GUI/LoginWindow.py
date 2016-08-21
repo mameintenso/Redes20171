@@ -10,15 +10,17 @@ class Main(QtGui.QMainWindow):
  
 	def initUI(self):
 		self.label1 = QtGui.QLabel('¿Cuál es mi puerto', self)
+		self.label1.resize(380,45)
 		self.label1.move(20,45)
 
 		self.line = QtGui.QLineEdit(self)
-		self.line.move(20,70)
+		self.line.move(20,90)
 		self.line.setReadOnly(True)
 		self.line.setAlignment(Qt.AlignLeft)
 		self.line.resize(380,45)
 
 		self.label2 = QtGui.QLabel('¿Cuál es el puerto del contacto?:', self)
+		self.label2.resize(380,45)
 		self.label2.move(20,180)
 		
 		self.line = QtGui.QLineEdit(self)
