@@ -16,6 +16,7 @@
 #################################################### #
 import sys, getopt
 
+from GUI.LoginWindow import *
 
 
 # **************************************************
@@ -25,14 +26,14 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "l", ["local="])
     except getopt.GetoptError:
-        #TODO lanzar exepcion
-        pass
+        raise('Fatal Error: bad argument!')
+        sys.exit(0)
     if opts: #Si el usuario mandó alguna bandera
         local = True if '-l' in opts[0] else False
     else:
         local = False
-        app = QtGui.QApplication(sys.argv)
-        #TODO Llamar a su ventana de login
+    app = QtGui.QApplication(sys.argv)
+    login_window = LoginOneComputer() if local else LoginTwoComputers()
     sys.exit(app.exec_())
 
 

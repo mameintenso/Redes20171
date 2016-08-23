@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ApiClient import *
-from ApiServer import *
+from Channel.ApiClient import *
+from Channel.ApiServer import *
 
 """
 Las instancias de esta clase contendran los metodos
@@ -13,7 +13,7 @@ servidor xmlrpc del contacto
 """
 class Channel:
 
-    def __init__(self, contact_ip=None, contact_port=None):
+    def __init__(self, local_ip, local_port, contact_ip, contact_port, gui):
         """
         Constructor de la clase
         @param <str> contact_ip: Si no se trabaja de manera local
@@ -25,9 +25,9 @@ class Channel:
         representa el puerto de la instancia del contacto
         """
         self.proxy_uri = 'http://' + contact_ip + ':' + contact_port
-        self.my_ip = 'localhost'
-        self.my_port = input('enter my port: ')
-        self.api_server = MyApiServer(self.my_ip, self.my_port)
+        self.my_ip = local_ip
+        self.my_port = local_port
+        self.api_server = MyApiServer(self.my_ip, self.my_port, gui)
         self.api_client = MyApiClient(self.proxy_uri)
 
         # start server
@@ -41,15 +41,15 @@ class Channel:
         """
         print(self.api_client.send_message(text))
 
-if __name__ == '__main__':
-    cont_ip = input('give me a contact ip: ')
-    cont_port = input('give me a contact port: ')
-    channel = Channel(cont_ip, cont_port)
-    while True:
-        try:
-            mess = input('>> ')
-            channel.send_text(mess)
-        except KeyboardInterrupt:
-            print("\nKeyboard interrupt received, exiting.")
-            self.server.server_close()
-            sys.exit(0)
+# if __name__ == '__main__':
+#     cont_ip = input('give me a contact ip: ')
+#     cont_port = input('give me a contact port: ')
+#     channel = Channel(cont_ip, cont_port)
+#     while True:
+#         try:
+#             mess = input('>> ')
+#             channel.send_text(mess)
+#         except KeyboardInterrupt:
+#             print("\nKeyboard interrupt received, exiting.")
+#             self.server.server_close()
+#             sys.exit(0)
