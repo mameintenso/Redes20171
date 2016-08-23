@@ -1,7 +1,9 @@
-#GUICHAT
 import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+from PyQt4.QtCore import SIGNAL
+
+renglonhistorial = "" 
 
 class Main(QtGui.QMainWindow):
 	def __init__(self):
@@ -21,9 +23,11 @@ class Main(QtGui.QMainWindow):
 		self.box.setTextMargins(15,10,40,20)
 
 		#Botón para responder
-		self.responder = QtGui.QPushButton("Responder",self)
+		self.responder = QtGui.QPushButton("Enviar", self)
 		self.responder.move(670,570)
 		self.responder.resize(140,80)
+		self.connect(self.responder, SIGNAL("clicked()"),self.responderclick)
+		
 
 		#Historial de mensajes.
 		self.historial = QtGui.QTextBrowser(self)
@@ -31,18 +35,17 @@ class Main(QtGui.QMainWindow):
 		self.historial.resize(790,530)
 		self.historial.move(20,20)
 
-
-
-
-
-
-
-
+		#Ventana principal
 		self.setGeometry(300,300,840,680)
 		self.setFixedSize(840,680)
 		self.setWindowTitle("Chat")
 		self.setWindowIcon(QtGui.QIcon(""))
 		self.show()
+
+		#Señales
+	def responderclick():
+		textoenviado = self.box.text()
+		self.historial.setText(textoenviado)
 
 def main():
 	app = QtGui.QApplication(sys.argv)
