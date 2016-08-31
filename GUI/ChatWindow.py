@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import sys
 import socket
 
@@ -63,8 +66,14 @@ class Chat(QtGui.QMainWindow):
         #Botón para responder
         self.responder = QtGui.QPushButton("Enviar", self)
         self.responder.move(670,570)
-        self.responder.resize(140,80)
+        self.responder.resize(95,80)
         self.connect(self.responder, QtCore.SIGNAL("clicked()"), self.responderclick)
+
+        # button to record audio
+        self.record = QtGui.QPushButton("Llamar", self)
+        self.record.move(750, 570)
+        self.record.resize(95, 80)
+        self.connect(self.record, QtCore.SIGNAL("clicked()"), self.record_audio)
 
         #Ventana principal
         self.setGeometry(300,300,840,680)
@@ -77,10 +86,51 @@ class Chat(QtGui.QMainWindow):
         # send message
         self.channel.api_client.send_message(self.box.text())
 
-        self.update_chat('\nyou say: ', self.box.text(), self.local_ip, self.local_port)
+        self.update_chat('\nyou say: ', self.box.text())
         self.box.clear()
 
-    def update_chat(self, header, message, ip, port):
+    def update_chat(self, header, message):
         # update chat history
         self.chat_history = header + message
         self.historial.append(self.chat_history)
+
+    def record_audio(self):
+        self.update_chat('', '\nLlamada de voz iniciada...')
+        self.audio_window = RecordAudioWindow(self.channel, self)
+
+class RecordAudioWindow(QtGui.QMainWindow):
+
+    def __init__(self, channel, gui):
+        QtGui.QMainWindow.__init__(self)
+        self.channel = channel
+        self.gui = gui
+        self.channel.api_client.start_call()
+        self.initUI()
+
+    def initUI(self):
+        self.label1 = QtGui.QLabel('Llamada en curso...', self)
+        self.label1.resize(380,45)
+        self.label1.move(20,45)
+
+        self.stop_button = QtGui.QPushButton("Detener llamada", self)
+        self.stop_button.move(300,280)
+        self.stop_button.resize(130,60)
+        self.connect(self.stop_button, QtCore.SIGNAL('clicked()'), self.stop_call)
+
+        self.setGeometry(300,300,420,350)
+        self.setFixedSize(420,350)
+        self.setWindowTitle("Llamada de voz")
+        self.setWindowIcon(QtGui.QIcon(""))
+        self.show()
+        # self.channel.send_audio()
+
+    def stop_call(self):
+        # stop the threads that record and send audio
+        # self.channel.audio_rec.record = False
+        # if not self.channel.audio_rec.is_stop():
+        #     self.channel.audio_rec.stop()
+        # if not self.channel.audio_sender.is_stop():
+        #     self.channel.audio_sender.stop()
+        # self.channel.queue = Queue()
+        self.gui.update_chat('','\nLlamada de voz finalizada...')
+        self.close()

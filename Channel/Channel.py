@@ -3,6 +3,10 @@
 
 from Channel.ApiClient import *
 from Channel.ApiServer import *
+from Channel.RecordAudio import *
+from Constants.AuxiliarFunctions import *
+
+from queue import Queue
 
 """
 Las instancias de esta clase contendran los metodos
@@ -33,6 +37,13 @@ class Channel:
         # start server
         self.api_server.start()
 
+        # audio buffer
+        self.queue = Queue()
+
+        # for recording audio and sending it
+        self.audio_rec = AudioRecorder(self.queue)
+        self.audio_sender = AudioSender(self.queue, self.api_client)
+
 
     def send_text(self, text):
         """
@@ -41,15 +52,7 @@ class Channel:
         """
         print(self.api_client.send_message(text))
 
-# if __name__ == '__main__':
-#     cont_ip = input('give me a contact ip: ')
-#     cont_port = input('give me a contact port: ')
-#     channel = Channel(cont_ip, cont_port)
-#     while True:
-#         try:
-#             mess = input('>> ')
-#             channel.send_text(mess)
-#         except KeyboardInterrupt:
-#             print("\nKeyboard interrupt received, exiting.")
-#             self.server.server_close()
-#             sys.exit(0)
+    def send_audio(self):
+        # run the threads that record and send audio
+        self.audio_rec.run()
+        self.audio_sender.run()
