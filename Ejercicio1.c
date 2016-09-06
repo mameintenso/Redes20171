@@ -57,7 +57,6 @@ struct sniff_tcp {
         u_char  th_offx2;               /* data offset, rsvd */
 
 #define TH_OFF(th)      (((th)->th_offx2 & 0xf0) >> 4)
-        u_char  th_flags;
         u_short th_win;                 /* window */
         u_short th_sum;                 /* checksum */
         u_short th_urp;                 /* urgent pointer */
