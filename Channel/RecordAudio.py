@@ -1,34 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import pyaudio
+from __future__ import absolute_import
 
-from threading import Thread, Event
+import pyaudio
+import numpy as np
+
+from threading import Thread
 
 from Constants.Constants import *
-
-class AudioSender(Thread):
-    '''
-    Class that sends audio if enqueued in a given
-    queue (buffer)
-    '''
-
-    def __init__(self, queue, client):
-        super(AudioSender, self).__init__()
-        self.queue = queue
-        self._stop = Event()
-        self.client = client
-
-    def run(self):
-        while True:
-            if not self.queue.empty():
-                self.client.send_audio(queue.get())
-
-    def stop(self):
-        self._stop.set()
-
-    def is_stop(self):
-        return self._stop.isSet()
 
 
 class AudioRecorder(Thread):
@@ -37,31 +17,24 @@ class AudioRecorder(Thread):
 
         self.p = pyaudio.PyAudio()
         self.queue = queue
-        self.record = True
-        self._stop = Event()
-
-    def stop(self):
-        self._stop.set()
-
-    def is_stop(self):
-        return self._stop.isSet()
 
     def run(self):
         '''
         Records audio and saves it in the given
         queue (buffer)
         '''
-        stream = self.p.open(format=FORMAT,
+        form = self.p.get_format_from_width(2)
+        stream = self.p.open(format=form,
                         channels=CHANNELS,
                         rate=RATE,
                         input=True,
                         frames_per_buffer=CHUNK)
-        print('recording audio....')
-        while self.record:
-            data = stream.read(CHUNK)
-            self.queue.put(data)
-        print("done recording")
-        self.record = True
-        stream.stop_stream()
-        stream.close()
-        self.p.terminate()
+        print 'recording audio....'
+        while True:
+            frame = []
+            for _ in range(int(RATE/CHUNK * RECORD_SECONDS)):
+                r = stream.read(CHUNK)
+                frame.append(r)
+            data_ar = np.fromstring(''.join(str(frame)),
+                                    dtype=np.uint8)
+            self.queue.put(data_ar)

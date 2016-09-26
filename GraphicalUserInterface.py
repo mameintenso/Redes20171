@@ -14,9 +14,14 @@
 #                                                    #
 # Distributed under terms of the MIT license.        #
 #################################################### #
+from __future__ import absolute_import
+
 import sys, getopt
 
-from GUI.LoginWindow import *
+from PyQt4 import QtCore, QtGui
+
+from GUI.LoginWindow import LoginOneComputer, LoginTwoComputers
+
 
 
 # **************************************************

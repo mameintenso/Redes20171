@@ -1,15 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtCore import SIGNAL, pyqtSignal
 
 import sys
 
 from threading import Thread
-from xmlrpc.server import SimpleXMLRPCServer
-from xmlrpc.server import SimpleXMLRPCRequestHandler
+
+import xmlrpclib
+from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
 from Constants.Constants import *
 from GUI.ChatWindow import *
@@ -20,25 +23,24 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
 class MyApiServer(Thread):
     def __init__(self, my_ip, my_port, gui):
         super(MyApiServer, self).__init__()
-
+        self.gui = gui
         self.my_ip = my_ip
         self.my_port = my_port
         if my_port is not None:
             self.server = SimpleXMLRPCServer((my_ip, int(my_port)),
                                              requestHandler=RequestHandler,
                                              allow_none=True)
-        self.server.register_instance(FunctionWrapper(gui, my_ip, my_port))
+        self.server.register_instance(FunctionWrapper(self.gui,
+                                                      self.my_ip,
+                                                      self.my_port))
         self.server.register_introspection_functions()
-        QtCore.QSettings.qRegisterMetaType(QtGUI.QTextCursor)
-        # self.server.register_instance(RecordAudioWindow(self.gui.channel,
-        #                                                 self.gui))
 
     def run(self):
-        print('Listening on port', self.my_port, '...')
+        print 'Listening on port ' + self.my_port + '...'
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
-            print("\nKeyboard interrupt received, exiting.")
+            print '\nKeyboard interrupt received, exiting.'
             self.server.server_close()
             sys.exit(0)
 
@@ -55,33 +57,33 @@ class FunctionWrapper:
         hacer lo necesario para mostrar el texto en nuestra pantalla.
         """
         self.gui.emit(QtCore.SIGNAL("agregarMensaje(QString)"), message)
-        print('Message received:', message)
+        print 'Message received:' + message
         self.gui.update_chat('\nyour friend says: ', message)
         return 'ACK.'
 
-    def startCall_wrapper(self):
-        self.gui.emit(QtCore.SIGNAL("llamadaEmpezada()"))
-        print('lel')
-        self.gui.record_audio()
-        # self.gui.audio_window = ChatWindow.RecordAudioWindow(self.gui.channel,
-        #                                                      self.gui)
-        print('lele2')
+    def incommingCall_wrapper(self):
+        # self.gui.emit(QtCore.SIGNAL("llamadaEmpezada(QString)"), 'lel')
+        # self.trigger = pyqtSignal()
+        # self.trigger.connect(self.gui.incomming_audio_call)
+        print 'Establishing audio call connection...'
+        # self.trigger.emit()
+        self.gui.incomming_audio_call()
         return 'ok.'
 
-    def sendAudio_wrapper(self, audio):
+    def playAudio_wrapper(self, audio):
         '''
         Receives and plays audio
         '''
         self.gui.emit(QtCore.SIGNAL("audioRecibidio(bytes)"), audio)
-        # self.gui.record_audio()
-        print('Audio received')
+        print 'Audio received'
         self.p = pyaudio.PyAudio()
+        FORMAT = self.p.get_format_from_width(2)
         self.stream = self.p.open(format=FORMAT,
                              channels=CHANNELS,
                              rate=RATE,
-                             input=True,
+                             output=True,
                              frames_per_buffer=CHUNK)
-        self.stream.write(audio)
+        self.stream.write(audio.data)
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()

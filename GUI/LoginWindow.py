@@ -1,5 +1,7 @@
 #GUI LOGIN.
 
+# from __future__ import absolute_import
+
 import sys
 
 from PyQt4 import QtGui, QtCore
@@ -13,7 +15,7 @@ class LoginOneComputer(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.label1 = QtGui.QLabel('¿Cuál es mi puerto?', self)
+        self.label1 = QtGui.QLabel('Mi puerto', self)
         self.label1.resize(380,45)
         self.label1.move(20,45)
 
@@ -21,7 +23,7 @@ class LoginOneComputer(QtGui.QMainWindow):
         self.line.move(20,90)
         self.line.resize(380,45)
 
-        self.label2 = QtGui.QLabel('¿Cuál es el puerto del contacto?', self)
+        self.label2 = QtGui.QLabel('Puerto del contacto?', self)
         self.label2.resize(380,45)
         self.label2.move(20,180)
 
@@ -42,9 +44,9 @@ class LoginOneComputer(QtGui.QMainWindow):
 
     def access_chat(self):
         self.chat = Chat(local=True,
-                         local_port=self.line.text(),
+                         local_port=str(self.line.text()),
                          cont_ip=None,
-                         cont_port=self.line2.text())
+                         cont_port=str(self.line2.text()))
         self.close()
 
 class LoginTwoComputers(QtGui.QMainWindow):
@@ -54,7 +56,7 @@ class LoginTwoComputers(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.label1 = QtGui.QLabel('¿Cuál es la IP del contacto?', self)
+        self.label1 = QtGui.QLabel('IP del contacto', self)
         self.label1.resize(380,45)
         self.label1.move(20,45)
 
@@ -76,7 +78,7 @@ class LoginTwoComputers(QtGui.QMainWindow):
     def access_chat(self):
         self.chat = Chat(local=False,
                          local_port='5000',
-                         cont_ip=self.line.text(),
+                         cont_ip=str(self.line.text()),
                          cont_port='5000')
         self.close()
 

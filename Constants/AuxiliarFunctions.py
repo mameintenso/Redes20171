@@ -14,6 +14,8 @@
 #                                                   #
 # Distributed under terms of the MIT license.       #
 #####################################################
+from __future__ import absolute_import
+
 import socket
 
 """**************************************************
@@ -30,14 +32,14 @@ def get_ip_address():
  Clase auxiliar que implementa el metodo
 stop, para que el hilo se detenga externamente
 **************************************************"""
-import threading
+from threading import Thread
 
 
-class MyThread(threading.Thread):
+class MyThread(Thread):
 
     def __init__(self, target):
         super(MyThread, self).__init__(target=target)
-        self._stop = threading.Event()
+        self._stop = thread.Event()
 
     def stop(self):
         self._stop.set()
