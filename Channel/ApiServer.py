@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QThread
 from PyQt4.QtCore import SIGNAL, pyqtSignal
 
 import sys
@@ -61,13 +61,10 @@ class FunctionWrapper:
         self.gui.update_chat('\nyour friend says: ', message)
         return 'ACK.'
 
-    def incommingCall_wrapper(self):
-        # self.gui.emit(QtCore.SIGNAL("llamadaEmpezada(QString)"), 'lel')
-        # self.trigger = pyqtSignal()
-        # self.trigger.connect(self.gui.incomming_audio_call)
+    def incommingCall_wrapper(self, calling):
         print 'Establishing audio call connection...'
-        # self.trigger.emit()
-        self.gui.incomming_audio_call()
+        self.gui.calling = calling
+        self.gui.emit(QtCore.SIGNAL('llamadaEmpezada(bool)'), calling)
         return 'ok.'
 
     def playAudio_wrapper(self, audio):
@@ -84,7 +81,8 @@ class FunctionWrapper:
                              output=True,
                              frames_per_buffer=CHUNK)
         self.stream.write(audio.data)
-        self.stream.stop_stream()
+        # self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
+        print 'lel'
         return 'ok.'

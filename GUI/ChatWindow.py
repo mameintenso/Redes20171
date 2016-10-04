@@ -6,14 +6,16 @@ from __future__ import absolute_import
 import sys
 import socket
 import time
+import multiprocessing as mp
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QMetaObject, Q_ARG
 from PyQt4.QtCore import SIGNAL
 
 from threading import Thread
 
 from Channel.Channel import *
+from Constants.AuxiliarFunctions import *
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -80,6 +82,12 @@ class Chat(QtGui.QMainWindow):
         self.call.resize(95, 80)
         self.connect(self.call, QtCore.SIGNAL("clicked()"), self.audio_call)
 
+        # connect signal to open incomming call window
+        self.calling = False
+        self.connect(self,
+                     QtCore.SIGNAL("llamadaEmpezada(bool)"),
+                     self.incomming_audio_call)
+
         #Ventana principal
         self.setGeometry(300,300,840,680)
         self.setFixedSize(840,680)
@@ -101,45 +109,66 @@ class Chat(QtGui.QMainWindow):
 
     def audio_call(self):
         self.update_chat('', '\nLlamada de voz iniciada...')
-        # msg = QtGui.QMessageBox(self)
-        # msg.setText('Llamada en curso...')
-        # msg.setStandardButtons(QtGui.QMessageBox.Cancel)
-        # code = msg.exec_()
-        # print 'Starting call ' + str(code)
-        # self.channel.start_audio_call()
         self.audio_call_window = AudioCallWindow(self)
 
     def incomming_audio_call(self):
-        print 'ioasdfjosd'
-        # self.emit(QtCore.SIGNAL("audioCall()"), AudioCallWindow(self))
-        print 'lelelele'
         self.update_chat('', '\nLlamada de voz iniciada...')
-        # self.inc_call_window = AudioCallWindow(self)
+        self.inc_call_window = IncommingCallWindow(self, self.calling)
+
+class IncommingCallWindow(QtGui.QMainWindow):
+
+    def __init__(self, chat_gui, calling):
+        QtGui.QMainWindow.__init__(self)
+        self.chat_gui = chat_gui
+        self.calling = calling
+        self.initUI()
+
+    def initUI(self):
+        self.stop = QtGui.QPushButton("Detener", self)
+        self.stop.move(50, 20)
+        self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
+
+        self.setFixedSize(200, 60)
+        self.setWindowTitle("Llamada de voz")
+
+        self.stop_thread = Thread(target=self.stop_call)
+        self.stop_thread.start()
+        self.show()
+
+
+    def stop_call(self):
+        # while self.calling:
+        #     pass
+        self.chat_gui.update_chat('','\nLlamada de voz finalizada...')
+        self.close()
+
+
 
 class AudioCallWindow(QtGui.QMainWindow):
 
     def __init__(self, chat_gui):
         QtGui.QMainWindow.__init__(self)
         self.chat_gui = chat_gui
+        self.calling = True
+        self.call_thread = MyThread(target=self.chat_gui.channel.start_audio_call,
+                                    args=(self.calling,))
         self.initUI()
 
     def initUI(self):
-        self.textbox = QtGui.QLabel(self)
-        self.textbox.move(15,15)
-        self.textbox.resize(730,600)
-
-        self.stop = QtGui.QPushButton("Detener", self)
-        self.stop.move(750, 570)
-        self.stop.resize(95, 80)
+        self.stop = QtGui.QPushButton("Detenerlel", self)
+        self.stop.move(50, 20)
         self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
 
-        self.chat_gui.channel.start_audio_call()
+        self.setFixedSize(200, 60)
+        self.setWindowTitle("Llamada de voz")
+        self.call_thread.start()
         self.show()
-        # self.setText('Llamada de voz en curso')
-        # self.setStandardButtons(QtGui.QMessageBox.Cancel)
-        # code = self.exec_()
-        # print 'Starting call ' + str(code)
+
 
     def stop_call(self):
+        self.calling = False
+        # if not self.call_thread.is_stop():
+        #     print '\n\n\noisadfjioasdjfioasjdfioji\n\n\n'
+        #     self.call_thread.join()
         self.chat_gui.update_chat('','\nLlamada de voz finalizada...')
         self.close()

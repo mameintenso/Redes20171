@@ -9,6 +9,7 @@ from Channel.RecordAudio import *
 from Constants.AuxiliarFunctions import *
 
 import multiprocessing as mp
+from threading import Thread
 import xmlrpclib
 
 
@@ -45,8 +46,7 @@ class Channel:
         self.queue = mp.Queue()
 
         # for recording audio and sending it
-        self.audio_rec = AudioRecorder(self.queue)
-        # self.audio_sender = AudioSender(self.queue, self.api_client)
+        self.audio_rec = AudioRecorder()
 
 
     def send_text(self, text):
@@ -56,12 +56,15 @@ class Channel:
         """
         print self.api_client.send_message(text)
 
-    def start_audio_call(self):
-        self.audio_rec.start()
-        # self.api_client.receive_call()
-        while True:
+    def start_audio_call(self, calling):
+        thr = Thread(target=self.audio_rec.run,
+                     args=(self.queue, calling, ))
+        thr.start()
+        self.api_client.receive_call(calling)
+        while calling:
+            print 'calling: ' + str(calling)
             audio_chunk = self.queue.get()
-            data = xmlrpclib.Binary(audio_chunk)
+            data = xmlrpclib.Binary(audio_chunk.tobytes())
             self.api_client.play_audio(data)
 
     def stop_audio_call(self):

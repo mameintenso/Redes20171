@@ -15,8 +15,8 @@ class MyApiClient:
     def send_message(self, message):
         print(self.server.sendMessage_wrapper(str(message)))
 
-    def receive_call(self):
-        print(self.server.incommingCall_wrapper())
+    def receive_call(self, calling):
+        print(self.server.incommingCall_wrapper(calling))
 
     def play_audio(self, audio):
         print(self.server.playAudio_wrapper(audio))
