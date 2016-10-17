@@ -98,6 +98,7 @@ class FunctionWrapper:
         video_displayer = Thread(target=self.display_video)
         video_displayer.setDaemon(True)
         video_displayer.start()
+        self.gui.update_chat('', '\nRecibiendo video...')
         return 'ACK.'
 
     def display_video(self):
@@ -110,8 +111,8 @@ class FunctionWrapper:
         while self.recording:
             if len(self.frames) > 0:
                 print 'displaying video...\n'
-                self.gui.update_chat('', '\nRecibiendo video')
 		cv2.imshow('VideoChat', self.frames.pop(0))
+                cv2.waitKey(5)
 	cv2.destroyAllWindows()
 
     def stopVideo_wrapper(self):

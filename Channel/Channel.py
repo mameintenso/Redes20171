@@ -66,6 +66,7 @@ class Channel:
         self.video_rec.setDaemon(True)
         self.video_rec.start()
         return self.video_rec
+
     def start_audio_call(self):
         # thread that records audio
         self.audio_rec.setDaemon(True)

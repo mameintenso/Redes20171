@@ -25,4 +25,7 @@ class MyApiClient:
         print(self.server.playVideo_wrapper(data))
 
     def stop_video(self):
-        print(self.server.stopVideo_wrapper())
+        try:
+            print(self.server.stopVideo_wrapper())
+        except:
+            print(self.server.stopVideo_wrapper())
