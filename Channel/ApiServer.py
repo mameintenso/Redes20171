@@ -84,37 +84,29 @@ class FunctionWrapper:
         self.gui.update_chat('\nyour friend says: ', message)
         return 'ACK.'
 
-    def incommingCall_wrapper(self, calling):
-        print 'Establishing audio call connection...'
-        self.gui.calling = calling
-        self.gui.emit(QtCore.SIGNAL('llamadaEmpezada(bool)'), calling)
-        return 'ok.'
-
-    def playAudio(self, audio):
-        self.p = pyaudio.PyAudio()
-        FORMAT = self.p.get_format_from_width(2)
-        self.stream = self.p.open(format=FORMAT,
-                             channels=CHANNELS,
-                             rate=RATE,
-                             output=True,
-                             frames_per_buffer=CHUNK)
-        self.stream.write(audio.data)
-        # self.stream.stop_stream()
-        self.stream.close()
-        self.p.terminate()
-        print 'lel'
-        return 'ok.'
-
     def playAudio_wrapper(self, audio):
         '''
         Receives and plays audio
         '''
         self.gui.emit(QtCore.SIGNAL("audioRecibidio(bytes)"), audio)
         print 'Audio received'
-        self.audio_player = Thread(target=self.playAudio,
-                                   args=(audio,))
-        self.audio_player.setDaemon(True)
-        self.audio_player.start()
+        self.gui.update_chat('', '\nRecibiendo audio...')
+        self.p = pyaudio.PyAudio()
+        FORMAT = self.p.get_format_from_width(2)
+        self.stream = self.p.open(format=FORMAT,
+                                  channels=CHANNELS,
+                                  rate=RATE,
+                                  output=True,
+                                  frames_per_buffer=CHUNK)
+        self.stream.write(audio.data)
+        self.stream.close()
+        self.p.terminate()
+        return 'ok.'
+
+    def stopAudio_wrapper(self):
+        print 'Audio call stoped'
+        self.gui.update_chat('', '\nLlamada de voz finalizada')
+        return 'ok.'
 
     def toArray(self, s):
 	f = StringIO(s)
@@ -126,6 +118,7 @@ class FunctionWrapper:
         video_displayer = Thread(target=self.display_video)
         video_displayer.setDaemon(True)
         video_displayer.start()
+        self.gui.update_chat('', '\nRecibiendo video...')
         return 'ACK.'
 
     def display_video(self):
@@ -134,8 +127,14 @@ class FunctionWrapper:
 	video_player.start()
 
     def show_video(self):
-        while True:
+        self.recording = True
+        while self.recording:
             if len(self.frames) > 0:
                 print 'displaying video...\n'
 		cv2.imshow('VideoChat', self.frames.pop(0))
+                cv2.waitKey(5)
 	cv2.destroyAllWindows()
+
+    def stopVideo_wrapper(self):
+        self.gui.update_chat('', '\nLlamada de video finalizada')
+        self.recording = False

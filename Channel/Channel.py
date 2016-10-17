@@ -11,7 +11,6 @@ from Constants.AuxiliarFunctions import *
 
 import multiprocessing as mp
 from threading import Thread
-import xmlrpclib
 
 
 """
@@ -37,10 +36,12 @@ class RequestChannel:
         self.proxy_uri = 'http://' + contact_ip + ':' + contact_port
         self.my_ip = local_ip
         self.my_port = local_port
+        self.gui = gui
         self.api_server = MyApiServer(self.my_ip, self.my_port, gui)
         self.api_client = MyApiClient(self.proxy_uri)
 
         # start server
+        self.api_server.setDaemon(True)
         self.api_server.start()
 
         # audio and video buffers
@@ -48,10 +49,10 @@ class RequestChannel:
         self.vqueue = mp.Queue()
 
         # for recording audio and sending it
-        self.audio_rec = AudioRecorder()
+        self.audio_rec = AudioRecorder(self.api_client, self.queue)
 
         # video recorder
-        self.video_rec = VideoRecorder(self.vqueue, self.api_client)
+        self.video_rec = VideoRecorder(self.api_client)
 
 
 
@@ -69,25 +70,21 @@ class RequestChannel:
         """
         print self.api_client.send_message(text)
 
-    def start_audio_call(self, calling):
-        self.thr = Thread(target=self.audio_rec.run,
-                     args=(self.queue, calling, ))
-        self.thr.start()
-        self.api_client.receive_call(calling)
-        while calling:
-            print 'calling: ' + str(calling)
-            audio_chunk = self.queue.get()
-            data = xmlrpclib.Binary(audio_chunk.tobytes())
-            self.api_client.play_audio(data)
-
-    def stop_audio_call(self):
-        if self.audio_rec.is_alive():
-            self.audio_rec.terminate()
-
     def start_video_call(self):
         self.video_rec.setDaemon(True)
         self.video_rec.start()
+        return self.video_rec
 
+    def start_audio_call(self):
+        # thread that records audio
+        self.audio_rec.setDaemon(True)
+        self.audio_rec.start()
+
+        # thread that plays audio
+        self.playing_thread = Thread(target=self.audio_rec.play_audio)
+        self.playing_thread.setDaemon(True)
+        self.playing_thread.start()
+        return self.audio_rec
 
 class BidirectionalChannel(RequestChannel):
 

@@ -1,42 +1,30 @@
 # Redes 2017-1
 
-Repositorio creado para almacenar las prácticas del curso de Redes de Computadoras
-de la Facultad de Ciencias de la UNAM, durante el semestre 2017-1.
+## Práctica 4
 
 **Autores:**
 
 * [Albert Manuel Orozco Camacho](http://github.com/AlOrozco53)
 * [Erick Iván Pérez Jiménez](http://github.com/TuringOraculosLocos)
 
-# Reporte de la práctica 2
+# Reporte de la práctica 4
 
-* Define el concepto de procedimientos remotos.
-  ** Son aquellos procedimientos que se ejecutan de una computadora a otra, es decir que envian información
-  de un puerto de una computadora, al puerto de otra.
+### ¿Qué pasa si la red esporádicamente pierde paquetes, cómo afectaría esto al audio y al video?
+Si se pierden paquetes, el programa debería de seguir corriendo hasta que el usuario mande terminar los
+hilos que ejecutan al audio y/o video. Entonces por algunos instantes, el audio se dejaría de escuchar y
+el video se congelaría.
 
-* ¿Qué es una IP y para qué sirve?
- ** La IP es un identificador perteneciente al protocolo de Internet, el cual se usa actualmente
- en su cuarta versión. Se trata de una manera de identificar de manera única a una computadora
- dentro de una red, es decir, es como la __dirección postal__ de un sistema de cómputo dentro del Internet,
- haciendo una analogía con una mensajería de correos.
+### Respecto a la pregunta anterior, ¿cómo afecta esta situación al desempeño de la red?
+Una de las causas de pérdida de paquetes es el aumento de la [latencia] (nivel de tráfico) en la red.
+Dada la naturaleza de las tareas de transmición de audio y video, es posible que si al intentar reenviar
+un paquete, se pierdan muchos más que van llegando, ya que al grabar se generan muchos paquetes por unidad
+de tiempo. Por ello, si la pérdida de paquetes no afecta en gran medida la comunicación entre un usuario y otro,
+es posible ignorarla.
 
-* A grandes rasgos define lo que es un puerto.
-  ** Un puerto es el espacio de entrada y salida que se le asigna a un proceso para que pueda
-  utilizar servicios de red.
+### ¿Qué solución puede darse para evitar los problemas de las preguntas anteriores, y en que capa del modelo osi suele resolverse ?
+Para éste tipo de aplicaciones se suele usar UDP en vez de TCP, ya que, como se vio en la pregunta anterior,
+se puede ignorar la retransmisión de paquetes perdidos si es que la pérdida de los mismos no es significativa. Por tanto,
+la solución al problema se implementa en la capa de transporte.
 
-*¿Se puede tener dos clientes en una misma computadora? Es decir, abrir una terminal y correr una
- instancia para Alice, y abrir otra terminal para correr una instancia para Bob y que estos se puedan
- comunicar.
- **Si, si se puede, lo único que necesitas es usar un puerto diferente para cada cliente.
- 
- *Particularidades del código
-  * Cual es el flujo del problema y para que sirve cada archivo dentro de la carpeta GUI y Channel
-    ** En la carpeta del GUI se encuentra la interfaz gráfica de la ventana de selección de puertos
-    y en la otra se encuentra la ventana gráfica del chat, en la parte de Channel está el servidor, el cliente 
-    y el manejo de los threads. El flujo del problema consiste en abrir dos terminales, cada una lenvanta su
-    cliente y su servidor y cada cliente se comunica con el servidor del otro
-  * Principales problemas que se encontraron y cómo los solucionaron.
-    ** Tuvimos problemas con hacer que la caja donde se escribía el texto se quedara guardada en el widget de
-    historial.
-  * Problemas que no fueron solucionados
-    ** Al parecer todo funciona bien.
+Cabe destacar que el en programa sólo se probó para el uso en la misma máquina y NO se puede mandar audio o video
+al mismo tiempo :(.

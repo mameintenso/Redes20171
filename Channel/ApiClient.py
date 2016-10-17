@@ -20,11 +20,17 @@ class MyApiClient:
     def send_message(self, message):
         print(self.server.sendMessage_wrapper(str(message)))
 
-    def receive_call(self, calling):
-        print(self.server.incommingCall_wrapper(calling))
+    def stop_audio_call(self):
+        print(self.server.stopAudio_wrapper())
 
     def play_audio(self, audio):
         print(self.server.playAudio_wrapper(audio))
 
     def play_video(self, data):
         print(self.server.playVideo_wrapper(data))
+
+    def stop_video(self):
+        try:
+            print(self.server.stopVideo_wrapper())
+        except:
+            print(self.server.stopVideo_wrapper())
