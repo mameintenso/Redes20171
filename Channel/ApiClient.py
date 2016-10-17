@@ -1,16 +1,21 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-
 import xmlrpclib
+import sys
+sys.path.insert(0, '../Constants')
+from Constants import CHAT_PORT
+from AuxiliarFunctions import *
 
 class MyApiClient:
 
-    def __init__(self, proxy_uri):
-        if proxy_uri is not None:
-            self.server = xmlrpclib.ServerProxy(proxy_uri,
-                                                allow_none=True)
+    def __init__(self, contact_ip = None, contact_port = None):
+        if contact_port:
+            #TODO
+        elif contact_ip:
+            #TODO
+        else:
+            raise ValueError('The values of fields are not consistent MyApiClient.__init__')
 
     def send_message(self, message):
         print(self.server.sendMessage_wrapper(str(message)))

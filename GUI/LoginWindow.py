@@ -23,7 +23,7 @@ class LoginOneComputer(QtGui.QMainWindow):
         self.line.move(20,90)
         self.line.resize(380,45)
 
-        self.label2 = QtGui.QLabel('Puerto del contacto?', self)
+        self.label2 = QtGui.QLabel('Puerto del servidor de contactos', self)
         self.label2.resize(380,45)
         self.label2.move(20,180)
 
@@ -56,7 +56,7 @@ class LoginTwoComputers(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.label1 = QtGui.QLabel('IP del contacto', self)
+        self.label1 = QtGui.QLabel('IP del servidor de contactos', self)
         self.label1.resize(380,45)
         self.label1.move(20,45)
 

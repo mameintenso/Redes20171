@@ -31,7 +31,10 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "l", ["local="])
     except getopt.GetoptError:
-        raise('Fatal Error: bad argument!')
+        print 'Uso con puertos locales:'
+        print 'GraphicalUserInterface -l'
+        print 'Uso entre computadoras dentro de la red'
+        print 'GraphicalUserInterface'
         sys.exit(0)
     if opts: #Si el usuario mandó alguna bandera
         local = True if '-l' in opts[0] else False

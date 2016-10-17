@@ -23,9 +23,9 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 class MyApiServer(Thread):
-    def __init__(self, my_ip, my_port, gui):
+    def __init__(self, my_ip, my_port, QParent):
         super(MyApiServer, self).__init__()
-        self.gui = gui
+        self.gui = QParent
         self.my_ip = my_ip
         self.my_port = my_port
         if my_port is not None:
@@ -48,10 +48,30 @@ class MyApiServer(Thread):
 
 class FunctionWrapper:
     def __init__(self, gui, ip, port):
+        #Diccionario que contiene las conversaciones activas
+        #hasta ese momento
+        self.chats_dictionary = {}
         self.gui = gui
         self.ip = ip
         self.port = port
         self.frames = []
+
+    """**************************************************
+    Metodo que sera llamado cuando un contacto quiera establecer
+    conexion con este cliente
+    **************************************************"""
+    def new_chat_wrapper(self, contact_ip, contact_port, username):
+        #Un cliente mando a llamar a esta instancia, crea una ventana de
+        #chat para automaticamente
+        #TODO
+
+    """ **************************************************
+    Procedimiento que ofrece nuestro servidor, este metodo sera llamado
+    por el cliente con el que estamos hablando, debe de
+    hacer lo necesario para regresar el texto
+    ************************************************** """
+    def echo(self, message):
+        #TODO
 
     def sendMessage_wrapper(self, message):
         """

@@ -21,7 +21,7 @@ del api de un contacto. Internamente Trabajara
 con una proxy apuntando hacia los servicios del
 servidor xmlrpc del contacto
 """
-class Channel:
+class RequestChannel:
 
     def __init__(self, local_ip, local_port, contact_ip, contact_port, gui):
         """
@@ -54,6 +54,14 @@ class Channel:
         self.video_rec = VideoRecorder(self.vqueue, self.api_client)
 
 
+
+    """**************************************************
+    Metodo que se encarga de mandar iniciar una conversacion
+    con un nuevo contacto
+    **************************************************"""
+    def new_connection(self, my_ip, my_port):
+        #TODO
+
     def send_text(self, text):
         """
         Metodo que se encarga de mandar texto al contacto con
@@ -79,3 +87,22 @@ class Channel:
     def start_video_call(self):
         self.video_rec.setDaemon(True)
         self.video_rec.start()
+
+
+class BidirectionalChannel(RequestChannel):
+
+    def __init__(self, Qparent, contact_ip = None,  contact_port = None,my_port = None):
+        if my_port and contact_port:
+            #El objeto api server necesita correr en un hilo aparte
+            #TODO
+        elif contact_ip:
+            #TODO
+        else:
+            raise ValueError('The values of fields are not consistent BidirectionalChannel.__init__')
+        #TODO
+
+    """**************************************************
+    Metodos Get
+    **************************************************"""
+    def get_api_server(self):
+        return self.api_server_thread
