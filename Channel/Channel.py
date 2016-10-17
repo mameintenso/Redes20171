@@ -58,16 +58,12 @@ class Channel:
         print self.api_client.send_message(text)
 
     def start_audio_call(self):
-        try:
-            # thread that records audio
-            self.audio_rec.setDaemon(True)
-            self.audio_rec.start()
+        # thread that records audio
+        self.audio_rec.setDaemon(True)
+        self.audio_rec.start()
 
-            # thread that plays audio
-            self.playing_thread = Thread(target=self.audio_rec.play_audio)
-            self.playing_thread.setDaemon(True)
-            self.playing_thread.start()
-            return self.audio_rec
-        except RuntimeError:
-            self.gui.update_chat('', '\nNO PUEDES LLAMAR AL MISMO TIEMPO!!')
-            return None
+        # thread that plays audio
+        self.playing_thread = Thread(target=self.audio_rec.play_audio)
+        self.playing_thread.setDaemon(True)
+        self.playing_thread.start()
+        return self.audio_rec
