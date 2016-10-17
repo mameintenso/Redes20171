@@ -11,9 +11,11 @@ import sys
 
 from threading import Thread
 
+import numpy as np
 import xmlrpclib
+import cv2
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
-
+from cStringIO import StringIO
 from Constants.Constants import *
 from GUI.ChatWindow import *
 
@@ -49,6 +51,7 @@ class FunctionWrapper:
         self.gui = gui
         self.ip = ip
         self.port = port
+        self.frames = []
 
     def sendMessage_wrapper(self, message):
         """
@@ -67,12 +70,7 @@ class FunctionWrapper:
         self.gui.emit(QtCore.SIGNAL('llamadaEmpezada(bool)'), calling)
         return 'ok.'
 
-    def playAudio_wrapper(self, audio):
-        '''
-        Receives and plays audio
-        '''
-        self.gui.emit(QtCore.SIGNAL("audioRecibidio(bytes)"), audio)
-        print 'Audio received'
+    def playAudio(self, audio):
         self.p = pyaudio.PyAudio()
         FORMAT = self.p.get_format_from_width(2)
         self.stream = self.p.open(format=FORMAT,
@@ -86,3 +84,38 @@ class FunctionWrapper:
         self.p.terminate()
         print 'lel'
         return 'ok.'
+
+    def playAudio_wrapper(self, audio):
+        '''
+        Receives and plays audio
+        '''
+        self.gui.emit(QtCore.SIGNAL("audioRecibidio(bytes)"), audio)
+        print 'Audio received'
+        self.audio_player = Thread(target=self.playAudio,
+                                   args=(audio,))
+        self.audio_player.setDaemon(True)
+        self.audio_player.start()
+
+    def toArray(self, s):
+	f = StringIO(s)
+	arr = np.lib.format.read_array(f)
+	return arr
+
+    def playVideo_wrapper(self, video):
+        self.frames.append(self.toArray(video.data))
+        video_displayer = Thread(target=self.display_video)
+        video_displayer.setDaemon(True)
+        video_displayer.start()
+        return 'ACK.'
+
+    def display_video(self):
+        video_player = Thread(target=self.show_video)
+	video_player.setDaemon(True)
+	video_player.start()
+
+    def show_video(self):
+        while True:
+            if len(self.frames) > 0:
+                print 'displaying video...\n'
+		cv2.imshow('VideoChat', self.frames.pop(0))
+	cv2.destroyAllWindows()

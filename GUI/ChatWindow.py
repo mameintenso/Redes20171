@@ -58,32 +58,38 @@ class Chat(QtGui.QMainWindow):
         self.textbox.move(15,15)
         self.textbox.resize(730,600)
 
-	#Línea donde se escribe
+	# chat typing line
         self.box = QtGui.QLineEdit(self)
         self.box.move(20,570)
-        self.box.resize(630,80)
+        self.box.resize(550,80)
         self.box.setTextMargins(15,10,40,20)
 
-        #Historial de mensajes.
+        # message history
         self.historial = QtGui.QTextBrowser(self)
         self.historial.setAcceptRichText(True)
         self.historial.resize(790,530)
         self.historial.move(20,20)
 
-        #Botón para responder
+        # answer button
         self.responder = QtGui.QPushButton("Enviar", self)
-        self.responder.move(670,570)
+        self.responder.move(590,570)
         self.responder.resize(95,80)
         self.connect(self.responder, QtCore.SIGNAL("clicked()"), self.responderclick)
 
-        # button to start an audio call
-        self.call = QtGui.QPushButton("Llamar", self)
-        self.call.move(750, 570)
-        self.call.resize(95, 80)
-        self.connect(self.call, QtCore.SIGNAL("clicked()"), self.audio_call)
+        # audio call button
+        self.acall = QtGui.QPushButton("Audio\nLlamada", self)
+        self.acall.move(670, 570)
+        self.acall.resize(95, 80)
+        self.connect(self.acall, QtCore.SIGNAL("clicked()"), self.audio_call)
+
+        # video call button
+        self.vcall = QtGui.QPushButton("Video\nLlamada", self)
+        self.vcall.move(750, 570)
+        self.vcall.resize(95, 80)
+        self.connect(self.vcall, QtCore.SIGNAL("clicked()"), self.video_call)
 
         # connect signal to open incomming call window
-        self.calling = False
+        self.acalling = False
         self.connect(self,
                      QtCore.SIGNAL("llamadaEmpezada(bool)"),
                      self.incomming_audio_call)
@@ -107,13 +113,39 @@ class Chat(QtGui.QMainWindow):
         self.chat_history = header + message
         self.historial.append(self.chat_history)
 
+    def video_call(self):
+        self.channel.start_video_call()
+        # self.video_window = VideoWindow(self)
+
     def audio_call(self):
         self.update_chat('', '\nLlamada de voz iniciada...')
         self.audio_call_window = AudioCallWindow(self)
 
     def incomming_audio_call(self):
         self.update_chat('', '\nLlamada de voz iniciada...')
-        self.inc_call_window = IncommingCallWindow(self, self.calling)
+        self.inc_call_window = IncommingCallWindow(self, self.acalling)
+
+
+class VideoWindow(QtGui.QMainWindow):
+
+    def __init__(self, chat_gui):
+        QtGui.QMainWindow.__init__(self)
+        self.chat_gui = chat_gui
+        self.initUI()
+
+    def initUI(self):
+        self.stop = QtGui.QPushButton("Detener", self)
+        self.stop.move(50, 20)
+        self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
+
+        self.setFixedSize(200, 60)
+        self.setWindowTitle('Llamada de video')
+        self.show()
+
+    def stop_call(self):
+        self.chat_gui.update_chat('','\nVideo llamada finalizada...')
+        self.close()
+
 
 class IncommingCallWindow(QtGui.QMainWindow):
 
@@ -143,7 +175,6 @@ class IncommingCallWindow(QtGui.QMainWindow):
         self.close()
 
 
-
 class AudioCallWindow(QtGui.QMainWindow):
 
     def __init__(self, chat_gui):
@@ -155,7 +186,7 @@ class AudioCallWindow(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.stop = QtGui.QPushButton("Detenerlel", self)
+        self.stop = QtGui.QPushButton("Detener", self)
         self.stop.move(50, 20)
         self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
 

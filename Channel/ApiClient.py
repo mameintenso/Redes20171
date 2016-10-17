@@ -20,3 +20,6 @@ class MyApiClient:
 
     def play_audio(self, audio):
         print(self.server.playAudio_wrapper(audio))
+
+    def play_video(self, data):
+        print(self.server.playVideo_wrapper(data))

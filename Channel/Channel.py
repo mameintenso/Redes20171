@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from Channel.ApiClient import *
 from Channel.ApiServer import *
 from Channel.RecordAudio import *
+from Channel.RecordVideo import *
 from Constants.AuxiliarFunctions import *
 
 import multiprocessing as mp
@@ -42,24 +43,28 @@ class Channel:
         # start server
         self.api_server.start()
 
-        # audio buffer
+        # audio and video buffers
         self.queue = mp.Queue()
+        self.vqueue = mp.Queue()
 
         # for recording audio and sending it
         self.audio_rec = AudioRecorder()
+
+        # video recorder
+        self.video_rec = VideoRecorder(self.vqueue, self.api_client)
 
 
     def send_text(self, text):
         """
         Metodo que se encarga de mandar texto al contacto con
-        el cual se estableció la conexion
+        el cual se estableció la conexión
         """
         print self.api_client.send_message(text)
 
     def start_audio_call(self, calling):
-        thr = Thread(target=self.audio_rec.run,
+        self.thr = Thread(target=self.audio_rec.run,
                      args=(self.queue, calling, ))
-        thr.start()
+        self.thr.start()
         self.api_client.receive_call(calling)
         while calling:
             print 'calling: ' + str(calling)
@@ -70,3 +75,7 @@ class Channel:
     def stop_audio_call(self):
         if self.audio_rec.is_alive():
             self.audio_rec.terminate()
+
+    def start_video_call(self):
+        self.video_rec.setDaemon(True)
+        self.video_rec.start()
