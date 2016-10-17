@@ -23,3 +23,6 @@ class MyApiClient:
 
     def play_video(self, data):
         print(self.server.playVideo_wrapper(data))
+
+    def stop_video(self):
+        print(self.server.stopVideo_wrapper())

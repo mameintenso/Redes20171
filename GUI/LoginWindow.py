@@ -23,7 +23,7 @@ class LoginOneComputer(QtGui.QMainWindow):
         self.line.move(20,90)
         self.line.resize(380,45)
 
-        self.label2 = QtGui.QLabel('Puerto del contacto?', self)
+        self.label2 = QtGui.QLabel('Puerto del contacto', self)
         self.label2.resize(380,45)
         self.label2.move(20,180)
 

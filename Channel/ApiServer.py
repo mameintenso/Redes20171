@@ -114,8 +114,12 @@ class FunctionWrapper:
 	video_player.start()
 
     def show_video(self):
-        while True:
+        self.recording = True
+        while self.recording:
             if len(self.frames) > 0:
                 print 'displaying video...\n'
 		cv2.imshow('VideoChat', self.frames.pop(0))
 	cv2.destroyAllWindows()
+
+    def stopVideo_wrapper(self):
+        self.recording = False

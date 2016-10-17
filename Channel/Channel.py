@@ -51,7 +51,7 @@ class Channel:
         self.audio_rec = AudioRecorder()
 
         # video recorder
-        self.video_rec = VideoRecorder(self.vqueue, self.api_client)
+        self.video_rec = VideoRecorder(self.api_client)
 
 
     def send_text(self, text):
@@ -79,3 +79,4 @@ class Channel:
     def start_video_call(self):
         self.video_rec.setDaemon(True)
         self.video_rec.start()
+        return self.video_rec

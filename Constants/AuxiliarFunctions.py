@@ -28,6 +28,19 @@ def get_ip_address():
     s.connect(("8.8.8.8", 80))
     return "%s"% (s.getsockname()[0])
 
+""" Funcion que construira el header del mensaje a mandar """
+def get_message_header(username, ip):
+    return username+':'+ip+':'
+
+from Constants import *
+
+def split_message_header(message):
+    #El mensaje estara sera: username:ip:texto....
+    message_split = message.split(':')
+    return (message_split[MESSAGE_IP],
+            message_split[MESSAGE_PORT],
+            message_split[2:])
+
 """**************************************************
  Clase auxiliar que implementa el metodo
 stop, para que el hilo se detenga externamente

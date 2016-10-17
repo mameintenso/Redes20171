@@ -114,8 +114,8 @@ class Chat(QtGui.QMainWindow):
         self.historial.append(self.chat_history)
 
     def video_call(self):
-        self.channel.start_video_call()
-        # self.video_window = VideoWindow(self)
+        self.video_rec_thread = self.channel.start_video_call()
+        self.video_window = VideoWindow(self, self.video_rec_thread)
 
     def audio_call(self):
         self.update_chat('', '\nLlamada de voz iniciada...')
@@ -128,13 +128,15 @@ class Chat(QtGui.QMainWindow):
 
 class VideoWindow(QtGui.QMainWindow):
 
-    def __init__(self, chat_gui):
+    def __init__(self, chat_gui, video_thread):
         QtGui.QMainWindow.__init__(self)
         self.chat_gui = chat_gui
+        self.video_thread = video_thread
         self.initUI()
 
     def initUI(self):
-        self.stop = QtGui.QPushButton("Detener", self)
+        self.chat_gui.update_chat('', '\nLlamada de video iniciada...')
+        self.stop = QtGui.QPushButton("Terminar", self)
         self.stop.move(50, 20)
         self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
 
@@ -143,6 +145,7 @@ class VideoWindow(QtGui.QMainWindow):
         self.show()
 
     def stop_call(self):
+        self.video_thread.stop_video()
         self.chat_gui.update_chat('','\nVideo llamada finalizada...')
         self.close()
 
