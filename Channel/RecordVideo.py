@@ -26,7 +26,7 @@ class VideoRecorder(Thread):
         while self.recording:
             ret, frame = cap.read()
             print 'ret: ' + str(ret)
-            # cv2.imshow('Grabando video....', frame)
+            cv2.imshow('Grabando video....', frame)
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
             data = xmlrpclib.Binary(toString(frame))
