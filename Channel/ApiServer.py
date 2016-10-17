@@ -61,28 +61,26 @@ class FunctionWrapper:
         self.gui.update_chat('\nyour friend says: ', message)
         return 'ACK.'
 
-    def incommingCall_wrapper(self, calling):
-        print 'Establishing audio call connection...'
-        self.gui.calling = calling
-        self.gui.emit(QtCore.SIGNAL('llamadaEmpezada(bool)'), calling)
-        return 'ok.'
-
     def playAudio_wrapper(self, audio):
         '''
         Receives and plays audio
         '''
         self.gui.emit(QtCore.SIGNAL("audioRecibidio(bytes)"), audio)
         print 'Audio received'
+        self.gui.update_chat('', '\nRecibiendo audio...')
         self.p = pyaudio.PyAudio()
         FORMAT = self.p.get_format_from_width(2)
         self.stream = self.p.open(format=FORMAT,
-                             channels=CHANNELS,
-                             rate=RATE,
-                             output=True,
-                             frames_per_buffer=CHUNK)
+                                  channels=CHANNELS,
+                                  rate=RATE,
+                                  output=True,
+                                  frames_per_buffer=CHUNK)
         self.stream.write(audio.data)
-        # self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
-        print 'lel'
+        return 'ok.'
+
+    def stopAudio_wrapper(self):
+        print 'Audio call stoped'
+        self.gui.update_chat('', '\nLlamada de voz finalizada')
         return 'ok.'

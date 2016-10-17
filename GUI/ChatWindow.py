@@ -83,10 +83,10 @@ class Chat(QtGui.QMainWindow):
         self.connect(self.call, QtCore.SIGNAL("clicked()"), self.audio_call)
 
         # connect signal to open incomming call window
-        self.calling = False
-        self.connect(self,
-                     QtCore.SIGNAL("llamadaEmpezada(bool)"),
-                     self.incomming_audio_call)
+        # self.calling = False
+        # self.connect(self,
+        #              QtCore.SIGNAL("llamadaEmpezada(bool)"),
+        #              self.incomming_audio_call)
 
         #Ventana principal
         self.setGeometry(300,300,840,680)
@@ -109,18 +109,16 @@ class Chat(QtGui.QMainWindow):
 
     def audio_call(self):
         self.update_chat('', '\nLlamada de voz iniciada...')
-        self.audio_call_window = AudioCallWindow(self)
+        self.audio_call_thread = self.channel.start_audio_call()
+        if self.audio_call_thread is not None:
+            self.audio_call_window = AudioCallWindow(self, self.audio_call_thread)
 
-    def incomming_audio_call(self):
-        self.update_chat('', '\nLlamada de voz iniciada...')
-        self.inc_call_window = IncommingCallWindow(self, self.calling)
+class AudioCallWindow(QtGui.QMainWindow):
 
-class IncommingCallWindow(QtGui.QMainWindow):
-
-    def __init__(self, chat_gui, calling):
+    def __init__(self, chat_gui, audio_call_thread):
         QtGui.QMainWindow.__init__(self)
         self.chat_gui = chat_gui
-        self.calling = calling
+        self.audio_call_thread = audio_call_thread
         self.initUI()
 
     def initUI(self):
@@ -130,45 +128,9 @@ class IncommingCallWindow(QtGui.QMainWindow):
 
         self.setFixedSize(200, 60)
         self.setWindowTitle("Llamada de voz")
-
-        self.stop_thread = Thread(target=self.stop_call)
-        self.stop_thread.start()
         self.show()
 
-
     def stop_call(self):
-        # while self.calling:
-        #     pass
-        self.chat_gui.update_chat('','\nLlamada de voz finalizada...')
-        self.close()
-
-
-
-class AudioCallWindow(QtGui.QMainWindow):
-
-    def __init__(self, chat_gui):
-        QtGui.QMainWindow.__init__(self)
-        self.chat_gui = chat_gui
-        self.calling = True
-        self.call_thread = MyThread(target=self.chat_gui.channel.start_audio_call,
-                                    args=(self.calling,))
-        self.initUI()
-
-    def initUI(self):
-        self.stop = QtGui.QPushButton("Detenerlel", self)
-        self.stop.move(50, 20)
-        self.connect(self.stop, QtCore.SIGNAL("clicked()"), self.stop_call)
-
-        self.setFixedSize(200, 60)
-        self.setWindowTitle("Llamada de voz")
-        self.call_thread.start()
-        self.show()
-
-
-    def stop_call(self):
-        self.calling = False
-        # if not self.call_thread.is_stop():
-        #     print '\n\n\noisadfjioasdjfioasjdfioji\n\n\n'
-        #     self.call_thread.join()
+        self.audio_call_thread.stop_call()
         self.chat_gui.update_chat('','\nLlamada de voz finalizada...')
         self.close()

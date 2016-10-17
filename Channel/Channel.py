@@ -10,7 +10,6 @@ from Constants.AuxiliarFunctions import *
 
 import multiprocessing as mp
 from threading import Thread
-import xmlrpclib
 
 
 """
@@ -36,17 +35,19 @@ class Channel:
         self.proxy_uri = 'http://' + contact_ip + ':' + contact_port
         self.my_ip = local_ip
         self.my_port = local_port
+        self.gui = gui
         self.api_server = MyApiServer(self.my_ip, self.my_port, gui)
         self.api_client = MyApiClient(self.proxy_uri)
 
         # start server
+        self.api_server.setDaemon(True)
         self.api_server.start()
 
         # audio buffer
         self.queue = mp.Queue()
 
         # for recording audio and sending it
-        self.audio_rec = AudioRecorder()
+        self.audio_rec = AudioRecorder(self.api_client, self.queue)
 
 
     def send_text(self, text):
@@ -56,17 +57,17 @@ class Channel:
         """
         print self.api_client.send_message(text)
 
-    def start_audio_call(self, calling):
-        thr = Thread(target=self.audio_rec.run,
-                     args=(self.queue, calling, ))
-        thr.start()
-        self.api_client.receive_call(calling)
-        while calling:
-            print 'calling: ' + str(calling)
-            audio_chunk = self.queue.get()
-            data = xmlrpclib.Binary(audio_chunk.tobytes())
-            self.api_client.play_audio(data)
+    def start_audio_call(self):
+        try:
+            # thread that records audio
+            self.audio_rec.setDaemon(True)
+            self.audio_rec.start()
 
-    def stop_audio_call(self):
-        if self.audio_rec.is_alive():
-            self.audio_rec.terminate()
+            # thread that plays audio
+            self.playing_thread = Thread(target=self.audio_rec.play_audio)
+            self.playing_thread.setDaemon(True)
+            self.playing_thread.start()
+            return self.audio_rec
+        except RuntimeError:
+            self.gui.update_chat('', '\nNO PUEDES LLAMAR AL MISMO TIEMPO!!')
+            return None
