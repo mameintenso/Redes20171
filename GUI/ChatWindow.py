@@ -4,8 +4,6 @@
 from __future__ import absolute_import
 
 import sys
-import socket
-import time
 import multiprocessing as mp
 
 from PyQt4 import QtGui, QtCore
@@ -14,44 +12,30 @@ from PyQt4.QtCore import SIGNAL
 
 from threading import Thread
 
-from Channel.Channel import *
+from Channel.Channels import *
 from Constants.AuxiliarFunctions import *
-
-def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("gmail.com",80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
 
 class Chat(QtGui.QMainWindow):
 
-    def __init__(self, local, local_port, cont_ip, cont_port):
+    def __init__(self, openfriendgui, myname, friendname, channel=None):
         QtGui.QMainWindow.__init__(self)
-
+        self.friendname = friendname
         self.chat_history = ''
 
-        # setup port and IP variables
-        self.local = local
-        if local:
-            self.local_ip = 'localhost'
-            self.contact_port = cont_port
-            self.contact_ip='localhost'
-        else:
-            self.local_ip = get_local_ip()
-            self.contact_port = cont_port
-            self.contact_ip = cont_ip
-        self.local_port = local_port
+        # channel adjustments
+        self.channel = channel
+        self.channel.gui = self
+        self.channel.api_server.gui = self
+        self.channel.new_connection(myname)
 
-        # initialize channel
-        self.channel = Channel(self.local_ip,
-                               self.local_port,
-                               self.contact_ip,
-                               self.contact_port,
-                               self)
+        # start contact's chat GUI
+        if openfriendgui:
+            self.channel.open_friend_gui()
 
         # initialize interface
         self.initUI()
+        # self.connect(self, QtCore.SIGNAL('startedChat()'),
+        #              self.channel.open_friend_gui)
 
     def initUI(self):
         self.textbox = QtGui.QLabel(self)
@@ -91,7 +75,7 @@ class Chat(QtGui.QMainWindow):
         #Ventana principal
         self.setGeometry(300,300,840,680)
         self.setFixedSize(840,680)
-        self.setWindowTitle("Chat")
+        self.setWindowTitle("Conversando con " + self.friendname)
         self.setWindowIcon(QtGui.QIcon(""))
         self.show()
 
@@ -99,7 +83,7 @@ class Chat(QtGui.QMainWindow):
         # send message
         self.channel.api_client.send_message(self.box.text())
 
-        self.update_chat('\nyou say: ', self.box.text())
+        self.update_chat('\nusted dice: ', self.box.text())
         self.box.clear()
 
     def update_chat(self, header, message):

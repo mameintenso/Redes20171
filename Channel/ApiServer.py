@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -18,23 +18,26 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from cStringIO import StringIO
 from Constants.Constants import *
 from GUI.ChatWindow import *
+from Channel.Channels import *
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 class MyApiServer(Thread):
-    def __init__(self, my_ip, my_port, QParent):
+    def __init__(self, my_ip, my_port, QParent, my_name):
         super(MyApiServer, self).__init__()
         self.gui = QParent
         self.my_ip = my_ip
-        self.my_port = my_port
+        self.my_port = str(my_port)
+        self.my_name = my_name
         if my_port is not None:
             self.server = SimpleXMLRPCServer((my_ip, int(my_port)),
                                              requestHandler=RequestHandler,
                                              allow_none=True)
         self.server.register_instance(FunctionWrapper(self.gui,
                                                       self.my_ip,
-                                                      self.my_port))
+                                                      self.my_port,
+                                                      self.my_name))
         self.server.register_introspection_functions()
 
     def run(self):
@@ -47,13 +50,14 @@ class MyApiServer(Thread):
             sys.exit(0)
 
 class FunctionWrapper:
-    def __init__(self, gui, ip, port):
+    def __init__(self, gui, ip, port, my_name):
         #Diccionario que contiene las conversaciones activas
         #hasta ese momento
         self.chats_dictionary = {}
         self.gui = gui
         self.ip = ip
         self.port = port
+        self.my_name = my_name
         self.frames = []
 
     """**************************************************
@@ -61,9 +65,22 @@ class FunctionWrapper:
     conexion con este cliente
     **************************************************"""
     def new_chat_wrapper(self, contact_ip, contact_port, username):
-        #Un cliente mando a llamar a esta instancia, crea una ventana de
-        #chat para automaticamente
-        #TODO
+        print 'lel'
+        from Channel.Channels import RequestChannel
+        from GUI.ChatWindow import Chat
+        channel = RequestChannel(Qparent=None,
+                                 my_port=self.port,
+                                 contact_ip=contact_ip,
+                                 contact_port=contact_port,
+                                 server=self)
+        self.chat_gui = Chat(False, self.my_name, username, channel)
+        # self.chat_gui_thread = Thread(target=Chat.__init__,
+        #                               args=(False,
+        #                                     self.my_name,
+        #                                     username,
+        #                                     channel,))
+        # self.chat_gui_thread.setDaemon(True)
+        # self.chat_gui_thread.start()
 
     """ **************************************************
     Procedimiento que ofrece nuestro servidor, este metodo sera llamado
@@ -72,6 +89,7 @@ class FunctionWrapper:
     ************************************************** """
     def echo(self, message):
         #TODO
+        pass
 
     def sendMessage_wrapper(self, message):
         """
@@ -81,7 +99,7 @@ class FunctionWrapper:
         """
         self.gui.emit(QtCore.SIGNAL("agregarMensaje(QString)"), message)
         print 'Message received:' + message
-        self.gui.update_chat('\nyour friend says: ', message)
+        self.gui.update_chat('\nsu amigo dice: ', message)
         return 'ACK.'
 
     def playAudio_wrapper(self, audio):

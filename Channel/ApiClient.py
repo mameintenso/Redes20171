@@ -3,19 +3,20 @@
 
 import xmlrpclib
 import sys
-sys.path.insert(0, '../Constants')
-from Constants import CHAT_PORT
-from AuxiliarFunctions import *
+from Constants.Constants import CHAT_PORT
+from Constants.AuxiliarFunctions import *
+from Channel.Channels import *
 
 class MyApiClient:
 
-    def __init__(self, contact_ip = None, contact_port = None):
+    def __init__(self, contact_ip=None, contact_port=None):
         if contact_port:
-            #TODO
+            self.proxy_uri = 'http://localhost:' + str(contact_port)
         elif contact_ip:
-            #TODO
+            self.proxy_uri = 'http://' + contact_ip + ':' + str(CHAT_PORT)
         else:
             raise ValueError('The values of fields are not consistent MyApiClient.__init__')
+        self.server = xmlrpclib.ServerProxy(self.proxy_uri, allow_none=True)
 
     def send_message(self, message):
         print(self.server.sendMessage_wrapper(str(message)))
@@ -34,3 +35,15 @@ class MyApiClient:
             print(self.server.stopVideo_wrapper())
         except:
             print(self.server.stopVideo_wrapper())
+
+    def get_contacts(self, username):
+        return self.server.get_contacts_wrapper(str(username))
+
+    def connect_contact(self, ip, port, username):
+        self.server.connect_wrapper(str(ip), str(port), str(username))
+
+    def disconnect_contact(self, username):
+        self.server.disconnect_wrapper(str(username))
+
+    def opengui(self, receiving_ip, receiving_port, receiving_name):
+        self.server.new_chat_wrapper(receiving_ip, receiving_port, receiving_name)
