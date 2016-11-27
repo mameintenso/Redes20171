@@ -34,10 +34,11 @@ class MyApiServer(Thread):
             self.server = SimpleXMLRPCServer((my_ip, int(my_port)),
                                              requestHandler=RequestHandler,
                                              allow_none=True)
-        self.server.register_instance(FunctionWrapper(self.gui,
-                                                      self.my_ip,
-                                                      self.my_port,
-                                                      self.my_name))
+        self.functionWrapper = FunctionWrapper(self.gui,
+                                               self.my_ip,
+                                               self.my_port,
+                                               self.my_name)
+        self.server.register_instance(self.functionWrapper)
         self.server.register_introspection_functions()
 
     def run(self):
@@ -49,8 +50,9 @@ class MyApiServer(Thread):
             self.server.server_close()
             sys.exit(0)
 
-class FunctionWrapper:
+class FunctionWrapper(QtCore.QThread):
     def __init__(self, gui, ip, port, my_name):
+        QtCore.QThread.__init__(self)
         #Diccionario que contiene las conversaciones activas
         #hasta ese momento
         self.chats_dictionary = {}
@@ -64,23 +66,22 @@ class FunctionWrapper:
     Metodo que sera llamado cuando un contacto quiera establecer
     conexion con este cliente
     **************************************************"""
-    def new_chat_wrapper(self, contact_ip, contact_port, username):
-        print 'lel'
-        from Channel.Channels import RequestChannel
-        from GUI.ChatWindow import Chat
-        channel = RequestChannel(Qparent=None,
-                                 my_port=self.port,
-                                 contact_ip=contact_ip,
-                                 contact_port=contact_port,
-                                 server=self)
-        self.chat_gui = Chat(False, self.my_name, username, channel)
-        # self.chat_gui_thread = Thread(target=Chat.__init__,
-        #                               args=(False,
-        #                                     self.my_name,
-        #                                     username,
-        #                                     channel,))
-        # self.chat_gui_thread.setDaemon(True)
-        # self.chat_gui_thread.start()
+    def new_chat_wrapper(self, username, contact_ip, contact_port):
+        # from Channel.Channels import RequestChannel
+        # from GUI.ChatWindow import Chat
+        # channel = RequestChannel(Qparent=None,
+        #                          my_port=self.port,
+        #                          contact_ip=contact_ip,
+        #                          contact_port=contact_port,
+        #                          server=self)
+        # self.chat_gui = Chat(False, self.my_name, username, channel)
+        print 'username: ' + str(username)
+        print 'ip: ' + str(contact_ip)
+        print 'port: ' + str(contact_port)
+        self.emit(SIGNAL('window_remotely_opened'),
+                  username,
+                  contact_ip,
+                  contact_port)
 
     """ **************************************************
     Procedimiento que ofrece nuestro servidor, este metodo sera llamado
@@ -97,9 +98,10 @@ class FunctionWrapper:
         por el cliente con el que estamos hablando, debe de
         hacer lo necesario para mostrar el texto en nuestra pantalla.
         """
-        self.gui.emit(QtCore.SIGNAL("agregarMensaje(QString)"), message)
-        print 'Message received:' + message
-        self.gui.update_chat('\nsu amigo dice: ', message)
+        # self.gui.emit(QtCore.SIGNAL("agregarMensaje(QString)"), message)
+        print 'Message received:' + str(message)
+        self.emit(SIGNAL('message_sent'), '\nsu amigo dice: ', str(message))
+        # self.gui.update_chat('\nsu amigo dice: ', message)
         return 'ACK.'
 
     def playAudio_wrapper(self, audio):

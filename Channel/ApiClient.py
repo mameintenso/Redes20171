@@ -45,5 +45,6 @@ class MyApiClient:
     def disconnect_contact(self, username):
         self.server.disconnect_wrapper(str(username))
 
-    def opengui(self, receiving_ip, receiving_port, receiving_name):
-        self.server.new_chat_wrapper(receiving_ip, receiving_port, receiving_name)
+    def opengui(self, receiving_name, receiving_ip, receiving_port):
+        print 'receiving_name: ' + str(receiving_name)
+        self.server.new_chat_wrapper(receiving_name, receiving_ip, receiving_port)

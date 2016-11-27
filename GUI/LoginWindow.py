@@ -6,10 +6,11 @@
 import sys
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QObject, SIGNAL
 
 from GUI.ChatWindow import *
 from Channel.DirectoryChannel import *
+from Channel.ApiClient import *
 
 
 class LoginOneComputer(QtGui.QMainWindow):
@@ -201,7 +202,8 @@ class ContactWindow(QtGui.QMainWindow):
         self.start_chat.move(570, 400)
         self.start_chat.resize(95, 80)
         self.connect(self.start_chat,
-                     QtCore.SIGNAL("clicked()"), self.start_my_chat)
+                     QtCore.SIGNAL("clicked()"),
+                     self.start_my_chat)
 
         # reload contacts button
         self.update = QtGui.QPushButton("Actualizar\ncontactos", self)
@@ -215,6 +217,12 @@ class ContactWindow(QtGui.QMainWindow):
         self.logout_button.resize(190, 80)
         self.connect(self.logout_button, QtCore.SIGNAL("clicked()"), self.logout)
 
+        # connect ApiServer with chat window opening
+        QObject.connect(self.direct_channel.api_server.functionWrapper,
+                        SIGNAL('window_remotely_opened'),
+                        self.start_remote_chat,
+                        QtCore.Qt.QueuedConnection)
+
         self.setGeometry(300, 300, 840, 680)
         self.setFixedSize(840, 680)
         self.setWindowTitle(u"Lista de contactos en línea")
@@ -222,7 +230,6 @@ class ContactWindow(QtGui.QMainWindow):
         self.show()
 
     def start_my_chat(self):
-        # start my own chat GUI
         if self.contact:
             if self.my_port:
                 # initialize request channel
@@ -231,10 +238,6 @@ class ContactWindow(QtGui.QMainWindow):
                                                   contact_ip=str(self.cont_ip_line.text()),
                                                   contact_port=str(self.cont_port_line.text()),
                                                   server=self.direct_channel.get_api_server())
-                self.chat = Chat(openfriendgui=True,
-                                 myname=self.username,
-                                 friendname=self.contact,
-                                 channel=self.req_channel)
             else:
                 # initialize request channel
                 self.req_channel = RequestChannel(self,
@@ -242,10 +245,40 @@ class ContactWindow(QtGui.QMainWindow):
                                                   contact_ip=str(self.cont_ip_line.text()),
                                                   contact_port=str(self.cont_port_line.text()),
                                                   server=self.direct_channel.get_api_server())
-                self.chat = Chat(openfriendgui=True,
-                                 friendname=self.contact,
-                                 myname=self.username,
-                                 channel=self.req_channel)
+
+            self.req_channel.api_client = MyApiClient(str(self.cont_ip_line.text()),
+                                                      str(self.cont_port_line.text()))
+            self.chat_w = Chat(self.username,
+                               self.contacts[self.contact],
+                               self.req_channel)
+            print 'username: ' + str(self.username)
+            self.req_channel.api_client.opengui(str(self.username),
+                                                str(self.direct_channel.api_server.my_ip),
+                                                str(self.my_port))
+
+
+    def start_remote_chat(self, rec_name, rec_ip, rec_port):
+        if self.my_port:
+            # initialize request channel
+            self.req_channel = RequestChannel(self,
+                                              str(self.my_port),
+                                              contact_ip=rec_ip,
+                                              contact_port=rec_port,
+                                              server=self.direct_channel.get_api_server())
+        else:
+            # initialize request channel
+            self.req_channel = RequestChannel(self,
+                                              str(CHAT_PORT),
+                                              contact_ip=rec_ip,
+                                              contact_port=rec_port,
+                                              server=self.direct_channel.get_api_server())
+        self.req_channel.api_client = MyApiClient(rec_ip, rec_port)
+        print 'rec_name: ' + str(rec_name)
+        print 'rec_ip: ' + str(rec_ip)
+        self.chat_w = Chat(self.username,
+                           self.contacts[rec_name],
+                           self.req_channel)
+
 
     def clicked_contact(self, item):
         self.contact = str(item.text())

@@ -7,35 +7,31 @@ import sys
 import multiprocessing as mp
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt, QMetaObject, Q_ARG
+from PyQt4.QtCore import Qt, QMetaObject, Q_ARG, QObject
 from PyQt4.QtCore import SIGNAL
 
 from threading import Thread
 
 from Channel.Channels import *
 from Constants.AuxiliarFunctions import *
+from Constants.Constants import *
 
 class Chat(QtGui.QMainWindow):
 
-    def __init__(self, openfriendgui, myname, friendname, channel=None):
+    def __init__(self, myname, friendinfo, channel):
         QtGui.QMainWindow.__init__(self)
-        self.friendname = friendname
+        self.friendinfo = friendinfo
         self.chat_history = ''
 
         # channel adjustments
         self.channel = channel
         self.channel.gui = self
         self.channel.api_server.gui = self
+        self.channel.api_server.functionWrapper.gui = self
         self.channel.new_connection(myname)
-
-        # start contact's chat GUI
-        if openfriendgui:
-            self.channel.open_friend_gui()
 
         # initialize interface
         self.initUI()
-        # self.connect(self, QtCore.SIGNAL('startedChat()'),
-        #              self.channel.open_friend_gui)
 
     def initUI(self):
         self.textbox = QtGui.QLabel(self)
@@ -59,6 +55,10 @@ class Chat(QtGui.QMainWindow):
         self.responder.move(590,570)
         self.responder.resize(95,80)
         self.connect(self.responder, QtCore.SIGNAL("clicked()"), self.responderclick)
+        QObject.connect(self.channel.api_server.functionWrapper,
+                        QtCore.SIGNAL('message_sent'),
+                        self.update_chat,
+                        QtCore.Qt.QueuedConnection)
 
         # audio call button
         self.acall = QtGui.QPushButton("Audio\nLlamada", self)
@@ -75,16 +75,15 @@ class Chat(QtGui.QMainWindow):
         #Ventana principal
         self.setGeometry(300,300,840,680)
         self.setFixedSize(840,680)
-        self.setWindowTitle("Conversando con " + self.friendname)
+        self.setWindowTitle("Conversando con " + self.friendinfo[NAME_CONTACT])
         self.setWindowIcon(QtGui.QIcon(""))
         self.show()
 
     def responderclick(self):
-        # send message
         self.channel.api_client.send_message(self.box.text())
-
         self.update_chat('\nusted dice: ', self.box.text())
         self.box.clear()
+
 
     def update_chat(self, header, message):
         # update chat history
